@@ -14,16 +14,18 @@ class Post(models.Model):
 
     likers = models.ManyToManyField('User', blank=True, related_name="liked_posts")
     # test if I this is inmutable. I need it to be mutable
-    likes = models.PositiveIntegerField(default=0, editable=True)
+    likes = models.PositiveIntegerField(default=0, editable=False)
     def like(self, user):
-        self.likers.aaggregate(user)
-        self.likes += 1
-        self.save()
+        if user not in self.likers.all():
+            self.likers.add(user)
+            self.likes += 1
+            self.save()
     
     def unlike(self, user):
-        self.likers.remove(user)
-        self.likes -= 1
-        self.save()
+        if user in self.likers.all():
+            self.likers.remove(user)
+            self.likes -= 1
+            self.save()
 
     def __str__(self):
         content_len = len(self.content)
