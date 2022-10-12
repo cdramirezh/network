@@ -60,8 +60,17 @@ class PostTestCase(TestCase):
         post1.like(user2)
         post1.like(user3)
         post1.like(user4)
+
+        # Some redundancy
+        post1.like(user1)
+        post1.like(user1)
+
         post1.unlike(user1)
         post1.unlike(user2)
+
+        # Some unlike redundancy
         post1.unlike(user2)
+        post1.unlike(user1)
+        post1.unlike(user1)
 
         self.assertEqual(post1.likes, 2)
