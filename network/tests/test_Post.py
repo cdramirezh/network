@@ -1,6 +1,5 @@
-from pdb import post_mortem
 from django.test import TestCase
-from .models import User, Post
+from ..models import User, Post
 
 # Create your tests here.
 

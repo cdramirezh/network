@@ -1,11 +1,28 @@
-from email.policy import default
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    following = models.ManyToManyField('User', blank=True, related_name='followers')
+
+    def follow(self, user):
+        """ follower.follow(followed) """
+        if user != self:
+            self.following.add(user)
+            self.save()
+        else:
+            raise ValidationError("A user can't follow himself, that's narcissist")
+    
+    def unfollow(self, user):
+        """ follower.unfollow(followed) """
+        self.following.remove(user)
+        self.save()
+    
+    def clean(self):
+        if self in self.following.all():
+            self.following.remove(self)
+            raise ValidationError("A user can't follow himself, that's narcissist")
 
 class Post(models.Model):
     content = models.TextField()
@@ -34,4 +51,5 @@ class Post(models.Model):
 # Implement only if I can't implement the control on the User model
 # or if I can but it's too complicated
 # class Follow():
-#     pass
+#     follower = models.ForeignKey('User', related_name='undefinded1')
+#     followed = models.ForeignKey('User', related_name='unde2')

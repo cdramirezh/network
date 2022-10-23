@@ -6,8 +6,8 @@ class PostInlineAdmin(admin.TabularInline):
     model = Post.likers.through
 
 class UserAdmin(admin.ModelAdmin):
-    fields = ['password', 'username', 'email']
-    inlines = [PostInlineAdmin]
+    fields = ['password', 'username', 'email', 'following']
+    inlines = [PostInlineAdmin,]
 
 # Register your models here.
 admin.site.register(User, UserAdmin)

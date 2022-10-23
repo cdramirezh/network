@@ -33,4 +33,4 @@ jobs:
       - name: Run a multi-line script
         run: |
           pip3 install --user django
-          python3 manage.py test
+          python3 manage.py test network.tests
