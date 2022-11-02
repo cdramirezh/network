@@ -12,7 +12,7 @@ class User(AbstractUser):
             self.following.add(user)
             self.save()
         else:
-            raise ValidationError("A user can't follow himself, that's narcissist")
+            raise ValidationError("A user can't follow themself, that's narcissist")
     
     def unfollow(self, user):
         """ follower.unfollow(followed) """
@@ -22,7 +22,7 @@ class User(AbstractUser):
     def clean(self):
         if self in self.following.all():
             self.following.remove(self)
-            raise ValidationError("A user can't follow himself, that's narcissist")
+            raise ValidationError("A user can't follow themself, that's narcissist")
 
 class Post(models.Model):
     content = models.TextField()
