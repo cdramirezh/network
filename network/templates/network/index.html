@@ -11,7 +11,14 @@
         </div>
     {% else %}
     {% endif %}
-    TODO
+    
+    {% for post in posts %}
+        <p>{{ post.content }}</p>
+        <p>{{ post.poster }}</p>
+        <p>{{ post.creation_date }}</p>
+        <p>{{ post.get_likes }}</p>
+    {% endfor %}
+
 {% endblock %}
 
 {% block script %}

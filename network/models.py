@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.db.utils import IntegrityError
 
 class User(AbstractUser):
     following = models.ManyToManyField('User', blank=True, related_name='followers')
@@ -19,24 +19,38 @@ class User(AbstractUser):
         self.following.remove(user)
         self.save()
     
-    def clean(self):
-        if self in self.following.all():
-            self.following.remove(self)
-            raise ValidationError("A user can't follow themself, that's narcissist")
+    # This will trigger an error when executing this method before saving a new user
+    # This is inconvenient for managing and testing the objects through the Django Admin interface
+    # It throws the following error: "<User: follower>" needs to have a value for field "id" before this many-to-many relationship can be used.
+    # def clean(self):
+    #     if self in self.following.all():
+    #         self.following.remove(self)
+    #         raise ValidationError("A user can't follow themself, that's narcissist")
 
 class Post(models.Model):
     content = models.TextField()
     poster = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, related_name="own_posts")
     creation_date = models.DateTimeField(auto_now_add=True)
-
-    likers = models.ManyToManyField('User', blank=True, related_name="liked_posts")
+    
     def like(self, user):
-        self.likers.add(user)
-        self.save()
+        like = Like(post=self, user=user)
+        try: like.clean()
+        except: return 0
+        like.save()
     
     def unlike(self, user):
-        self.likers.remove(user)
-        self.save()
+        like = Like.objects.filter(post=self, user=user)
+        like.delete()
+
+    def get_likes(self):
+        return self.likes.all().count()
+        # return Like.objects.all().filter(post=self).count()
+
+    def get_posts(type, user=None):
+        posts = Post.objects.all().order_by('-creation_date')
+        if type == 'ALL': return posts
+        if type == 'OWN': pass
+        if type == 'FOLLOWING': pass
 
     def __str__(self):
         content_len = len(self.content)
@@ -47,7 +61,19 @@ class Post(models.Model):
             content_preview = self.content
         format = '%-d/%b/%-y %-H:%M'
         return f'{self.creation_date.strftime(format)} {self.poster}: {content_preview}'
-    
+
+class Like(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields = ['post', 'user'], name='oneLikeUserPost')]
+        
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='likes')
+
+    def clean(self):
+        if Like.objects.filter(post=self.post, user=self.user):
+            raise ValidationError({'oneLikeUserPostError':'User already liked this post'})
+
 # Implement only if I can't implement the control on the User model
 # or if I can but it's too complicated
 # class Follow():
