@@ -1,14 +1,17 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from .models import User, Post
+from .forms import PostForm
 
 
 def index(request):
     posts = Post.get_posts(type='ALL')
     return render(request, "network/index.html", {
+        'form': PostForm(),
         'posts': posts,
     })
 
@@ -62,3 +65,18 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+# It would be nice to transform this into a JScript that pops up the form,
+# then saves the post, finally, queries the post and puts it at the top of the page
+@login_required(login_url='login')
+def create_post(request):
+    # take request
+    if (request.method == 'POST'):
+        post_form = PostForm(request.POST)
+
+        if post_form.is_valid():
+            post_form.instance.poster = request.user
+            post_form.save()
+            return HttpResponseRedirect(reverse(index))
+
+        return HttpResponse('Form was invalid')

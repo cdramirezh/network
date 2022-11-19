@@ -4,8 +4,9 @@
 {% block body %}
     {% if user.is_authenticated %}
         <div id="new_post">
-            <form>
-                <input type="text">
+            <form action="{% url 'create_post' %}" method="POST">
+                {% csrf_token %}
+                {{ form }}
                 <input type="submit" value="POST">
             </form>
         </div>
