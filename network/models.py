@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.utils import IntegrityError
 
 class User(AbstractUser):
     following = models.ManyToManyField('User', blank=True, related_name='followers')
@@ -19,13 +18,12 @@ class User(AbstractUser):
         self.following.remove(user)
         self.save()
     
-    # This will trigger an error when executing this method before saving a new user
-    # This is inconvenient for managing and testing the objects through the Django Admin interface
-    # It throws the following error: "<User: follower>" needs to have a value for field "id" before this many-to-many relationship can be used.
-    # def clean(self):
-    #     if self in self.following.all():
-    #         self.following.remove(self)
-    #         raise ValidationError("A user can't follow themself, that's narcissist")
+    def get_total_followers(self):
+        return self.followers.all().count()
+
+    def get_total_following(self):
+        return self.following.all().count()
+    
 
 class Post(models.Model):
     content = models.TextField()
