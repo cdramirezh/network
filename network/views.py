@@ -80,3 +80,11 @@ def create_post(request):
             return HttpResponseRedirect(reverse(index))
 
         return HttpResponse('Form was invalid')
+
+
+def profile_page(request, username):
+    user = User.objects.get(username=username)
+    return render(request, "network/profile_page.html", {
+        'user': user,
+        # 'posts': user.own_posts,
+    })
