@@ -47,7 +47,7 @@ class Post(models.Model):
     def get_posts(type, user=None):
         posts = Post.objects.all().order_by('-creation_date')
         if type == 'ALL': return posts
-        if type == 'OWN': pass
+        if type == 'USER': return posts.filter(poster=user)
         if type == 'FOLLOWING': pass
 
     def __str__(self):

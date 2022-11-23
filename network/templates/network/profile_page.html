@@ -1,17 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>Profile page</title>
-    </head>
-    <body>
-        username: {{ user.username }}
-        Number of followers: {{ user.get_total_followers }}
-        Number of people following {{ user.get_total_following }}:
-        {% for post in posts %}
-            <p>{{ post.content }}</p>
-            <p>{{ post.poster }}</p>
-            <p>{{ post.creation_date }}</p>
-            <p>{{ post.get_likes }}</p>
-        {% endfor %}   
-    </body>
-</html>
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    {% if follow_button %}
+        <input type="submit" value={{ follow_button }}>
+    {% else %}
+    {% endif %}
+    username: {{ requested_user.username }}
+    Number of followers: {{ requested_user.get_total_followers }}
+    Number of people following: {{ requested_user.get_total_following }}
+    {% for post in posts %}
+        <p>{{ post.content }}</p>
+        <p>{{ post.poster }}</p>
+        <p>{{ post.creation_date }}</p>
+        <p>{{ post.get_likes }}</p>
+    {% endfor %}   
+
+{% endblock %}
+
+{% block script %}
+    <!-- <script src="{% static 'network/ME_FALTA_IMPLEMENTAR_ESTO.js' %}"></script> -->
+{% endblock %}

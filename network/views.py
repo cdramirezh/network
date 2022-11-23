@@ -83,8 +83,23 @@ def create_post(request):
 
 
 def profile_page(request, username):
-    user = User.objects.get(username=username)
+    # Make sure requested user exist
+    try:
+        requested_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        # This should be a cute page
+        return HttpResponse(f'404 User {username} not found')
+    posts = Post.get_posts(type='USER', user=requested_user)
+
+    # Define follow message and wheter or not follow button
+    user = request.user
+    if (user == requested_user or not user.is_authenticated): follow_button = False
+    else:
+        if requested_user in user.following.all(): follow_button = 'Unfollow'
+        else: follow_button = 'Follow'
+    
     return render(request, "network/profile_page.html", {
-        'user': user,
-        # 'posts': user.own_posts,
+        'requested_user': requested_user,
+        'posts': posts,
+        'follow_button': follow_button,
     })
