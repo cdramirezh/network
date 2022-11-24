@@ -8,8 +8,9 @@ from .models import User, Post
 from .forms import PostForm
 
 
-def index(request):
-    posts = Post.get_posts(type='ALL')
+def index(request, posts=None):
+    if posts: pass
+    else: posts = Post.get_posts(type='ALL')
     return render(request, "network/index.html", {
         'form': PostForm(),
         'posts': posts,
@@ -98,8 +99,16 @@ def profile_page(request, username):
         if requested_user in user.following.all(): follow_button = 'Unfollow'
         else: follow_button = 'Follow'
     
+    # This page should reuse a substructure of index, not include a completely new template.
+    # It could be done with REACT
     return render(request, "network/profile_page.html", {
         'requested_user': requested_user,
         'posts': posts,
         'follow_button': follow_button,
     })
+
+
+@login_required(login_url='login')
+def following(request):
+    posts = Post.get_posts('FOLLOWING', user=request.user)
+    return index(request,posts)

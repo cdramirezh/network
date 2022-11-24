@@ -48,7 +48,7 @@ class Post(models.Model):
         posts = Post.objects.all().order_by('-creation_date')
         if type == 'ALL': return posts
         if type == 'USER': return posts.filter(poster=user)
-        if type == 'FOLLOWING': pass
+        if type == 'FOLLOWING': return posts.filter(poster__in=user.following.all())     
 
     def __str__(self):
         content_len = len(self.content)
