@@ -1,9 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.generic import ListView
 from .models import User, Post
 from .forms import PostForm
 
@@ -11,9 +13,15 @@ from .forms import PostForm
 def index(request, posts=None):
     if posts: pass
     else: posts = Post.get_posts(type='ALL')
+
+    items_per_page = 3
+    pages = Paginator(posts, items_per_page)
+    page_number = request.GET.get('page')
+    page_obj = pages.get_page(page_number)
+
     return render(request, "network/index.html", {
         'form': PostForm(),
-        'posts': posts,
+        'page_obj': page_obj,
     })
 
 def login_view(request):
