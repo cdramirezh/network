@@ -11,4 +11,5 @@ urlpatterns = [
     path("create", views.create_post, name="create_post"),
     path("profile_page/<str:username>", views.profile_page, name="profile_page"),
     path("following", views.following, name='following'),
+    path("toggle_follow/<str:followed_username>/<str:button_state>", views.toggle_follow, name='toggle_follow'),
 ]

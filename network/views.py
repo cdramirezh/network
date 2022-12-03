@@ -107,11 +107,17 @@ def profile_page(request, username):
         if requested_user in user.following.all(): follow_button = 'Unfollow'
         else: follow_button = 'Follow'
     
+    # Divide in pages
+    items_per_page = 2
+    pages = Paginator(posts, items_per_page)
+    page_number = request.GET.get('page')
+    page_obj = pages.get_page(page_number)
+
     # This page should reuse a substructure of index, not include a completely new template.
     # It could be done with REACT
     return render(request, "network/profile_page.html", {
         'requested_user': requested_user,
-        'posts': posts,
+        'page_obj': page_obj,
         'follow_button': follow_button,
     })
 
@@ -120,3 +126,19 @@ def profile_page(request, username):
 def following(request):
     posts = Post.get_posts('FOLLOWING', user=request.user)
     return index(request,posts)
+
+@login_required(login_url='login')
+def toggle_follow(request, followed_username, button_state):
+    # Make sure followed exist
+    try:
+        followed_user = User.objects.get(username=followed_username)
+    except User.DoesNotExist:
+        # This should be a cute page
+        return HttpResponse(f'404 User {followed_username} not found')
+
+    if button_state == 'Follow':
+        request.user.follow(followed_user)
+    if button_state == 'Unfollow':
+        request.user.unfollow(followed_user)
+
+    return HttpResponseRedirect(reverse("profile_page", args=(followed_username,)))

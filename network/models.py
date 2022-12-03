@@ -11,7 +11,7 @@ class User(AbstractUser):
             self.following.add(user)
             self.save()
         else:
-            raise ValidationError("A user can't follow themself, that's narcissist")
+            raise ValidationError("A user can't follow themself, that's narcissistic")
     
     def unfollow(self, user):
         """ follower.unfollow(followed) """

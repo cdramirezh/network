@@ -3,18 +3,39 @@
 
 {% block body %}
     {% if follow_button %}
-        <input type="submit" value={{ follow_button }}>
+        <form action="{% url 'toggle_follow' requested_user.username follow_button %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value={{ follow_button }}>
+        </form>
     {% else %}
     {% endif %}
     username: {{ requested_user.username }}
     Number of followers: {{ requested_user.get_total_followers }}
     Number of people following: {{ requested_user.get_total_following }}
-    {% for post in posts %}
+    {% for post in page_obj %}
         <p>{{ post.content }}</p>
         <p>{{ post.poster }}</p>
         <p>{{ post.creation_date }}</p>
         <p>{{ post.get_likes }}</p>
     {% endfor %}   
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+    
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
 
 {% endblock %}
 
